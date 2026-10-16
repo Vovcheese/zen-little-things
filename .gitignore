@@ -1,0 +1,33 @@
+# Local machine files and installer output
+.DS_Store
+*.log
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+# Private development tooling and profile data
+.agents/
+.codex/
+.aws/
+zen-mods-backups/
+profiles/
+prefs.js
+user.js
+zen-themes.json
+zen-find-highlight-state.json
+
+# Personal development captures; reviewed public images belong in docs/assets/
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.heic
+/*.mov
+/*.mp4
+
+# Generated fixture includes assets extracted from a local Zen installation
+/tests/folders-preview.html

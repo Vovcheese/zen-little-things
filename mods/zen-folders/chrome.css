@@ -1,0 +1,192 @@
+/* Zen Folders 0.2.0 — row-based folder navigation, without nested enclosures.
+ * Native state, visibility, tab sizes and drag-and-drop remain owned by Zen.
+ */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  #tabbrowser-tabs zen-folder {
+    --zf-accent: var(--ctp-accent, var(--zen-primary-color, #9874c4));
+    --zf-ink: var(--toolbar-color, var(--arrowpanel-color, CanvasText));
+    --zf-hover: rgba(128, 128, 128, 0.12);
+    --zf-open: rgba(128, 128, 128, 0.05);
+    --zf-guide: rgba(128, 128, 128, 0.24);
+    --zf-radius: 8px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  @supports (background: color-mix(in srgb, black, white)) {
+    #tabbrowser-tabs zen-folder {
+      --zf-hover: color-mix(in srgb, var(--zf-ink) 9%, transparent);
+      --zf-open: color-mix(in srgb, var(--zf-ink) 4%, transparent);
+      --zf-guide: color-mix(in srgb, var(--zf-ink) 20%, transparent);
+    }
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-label-container {
+    position: relative;
+    isolation: isolate;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--zf-ink);
+    cursor: pointer;
+  }
+
+  /* A single inset surface owns resting, hover and keyboard-focus feedback.
+     Do not paint the entire folder: nested folder backgrounds compound. */
+  #tabbrowser-tabs zen-folder > .tab-group-label-container::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 4px !important;
+    width: auto !important;
+    height: auto !important;
+    box-sizing: border-box;
+    border: 0 !important;
+    border-inline-start: 2px solid transparent !important;
+    border-radius: var(--zf-radius) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    z-index: -1;
+    pointer-events: none;
+    transition: background-color 140ms ease, border-color 140ms ease;
+  }
+
+  #tabbrowser-tabs zen-folder:not([collapsed]) > .tab-group-label-container::before {
+    border-inline-start-color: var(--zf-accent) !important;
+    background: var(--zf-open) !important;
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-label-container:hover::before,
+  #tabbrowser-tabs zen-folder[selected] > .tab-group-label-container::before {
+    background: var(--zf-hover) !important;
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-label-container:focus-visible::before,
+  #tabbrowser-tabs zen-folder > .tab-group-label-container:has(:focus-visible)::before {
+    outline: 2px solid var(--zf-accent);
+    outline-offset: -2px;
+  }
+
+  /* Icon and chevron have separate slots: 22px icon, 5px chevron, clear gap. */
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon {
+    width: 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
+    pointer-events: none;
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg {
+    display: block;
+    width: 22px !important;
+    height: 22px !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  /* Keep user icons and loaded-tab dots. The native skew animation can extend
+     the folder front into the chevron; state is now shown by the arrow/marker. */
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg .back,
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg .front,
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg .dots,
+  #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg .icon {
+    transform: none !important;
+    transition: opacity 140ms ease !important;
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-label-container::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute;
+    inset-inline-end: 7px;
+    inset-block-start: calc(50% - 3px);
+    width: 5px;
+    height: 5px;
+    border: 0;
+    border-inline-end: 1.5px solid currentColor;
+    border-block-end: 1.5px solid currentColor;
+    border-radius: 0;
+    background: none;
+    transform: rotate(-45deg);
+    transform-origin: center;
+    opacity: 0.65;
+    pointer-events: none;
+    transition: transform 140ms ease;
+  }
+
+  #tabbrowser-tabs zen-folder:not([collapsed]) > .tab-group-label-container::after {
+    transform: rotate(45deg);
+    opacity: 0.9;
+  }
+
+  :root:dir(rtl) #tabbrowser-tabs zen-folder[collapsed] > .tab-group-label-container::after {
+    transform: rotate(45deg);
+  }
+
+  :root:dir(rtl) #tabbrowser-tabs zen-folder:not([collapsed]) > .tab-group-label-container::after {
+    transform: rotate(135deg);
+  }
+
+  /* A single neutral guide. Nested folders do not add parallel rails or fill. */
+  #tabbrowser-tabs zen-folder > .tab-group-container {
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  #tabbrowser-tabs zen-folder > .tab-group-container::before {
+    content: none !important;
+  }
+
+  #tabbrowser-tabs zen-folder:not([collapsed]) > .tab-group-container {
+    background: linear-gradient(var(--zf-guide), var(--zf-guide)) left 5px top 0 / 1px calc(100% - 8px) no-repeat !important;
+  }
+
+  #tabbrowser-tabs zen-folder zen-folder:not([collapsed]) > .tab-group-container {
+    background: none !important;
+  }
+
+  :root:dir(rtl) #tabbrowser-tabs zen-folder:not([collapsed]) > .tab-group-container {
+    background-position: right 5px top 0 !important;
+  }
+
+  :root:not([zen-sidebar-expanded="true"]) #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon {
+    inset-inline-start: calc(50% - 17px) !important;
+  }
+
+  /* In expanded mode native folder indentation and labels remain intact. */
+  :root[zen-sidebar-expanded="true"] #tabbrowser-tabs zen-folder > .tab-group-label-container {
+    padding-inline-end: 24px !important;
+  }
+
+  :root[zen-sidebar-expanded="true"] #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon {
+    inset-inline-start: 9px !important;
+  }
+
+  /* Match tab surfaces to folder surfaces, without shrinking the click target.
+     Selected tab colors, badges, audio controls and tab contents stay native. */
+  :root:not([zen-sidebar-expanded="true"]) #tabbrowser-tabs:not([movingtab]) zen-folder .tabbrowser-tab > .tab-stack > .tab-background {
+    width: calc(100% - 8px) !important;
+    margin-inline: 4px !important;
+    border-radius: var(--zf-radius) !important;
+  }
+
+  #tabbrowser-tabs:not([movingtab]) zen-folder .tabbrowser-tab:not([selected]):not([visuallyselected]):hover > .tab-stack > .tab-background {
+    background-color: var(--zf-hover) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tabbrowser-tabs zen-folder > .tab-group-label-container::before,
+    #tabbrowser-tabs zen-folder > .tab-group-label-container::after,
+    #tabbrowser-tabs zen-folder > .tab-group-label-container > .tab-group-folder-icon svg * {
+      transition: none !important;
+    }
+  }
+
+  @media (forced-colors: active) {
+    #tabbrowser-tabs zen-folder {
+      --zf-accent: Highlight;
+      --zf-ink: CanvasText;
+      --zf-hover: ButtonFace;
+      --zf-open: Canvas;
+      --zf-guide: CanvasText;
+    }
+  }
+}

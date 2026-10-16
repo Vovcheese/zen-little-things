@@ -1,0 +1,12 @@
+{
+  "id": "91e7a716-75d9-4b7b-a44e-6cd41738ea26",
+  "name": "Zen Peek",
+  "description": "Readable native tab previews with gentle animations.",
+  "author": "v0vcheese",
+  "version": "0.1.0",
+  "tags": [
+    "tabs"
+  ],
+  "createdAt": "2026-10-16",
+  "updatedAt": "2026-10-16"
+}

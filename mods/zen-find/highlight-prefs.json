@@ -1,0 +1,7 @@
+{
+  "findbar.highlightAll": true,
+  "ui.textHighlightBackground": "#E6DCFF",
+  "ui.textHighlightForeground": "#302347",
+  "ui.textSelectAttentionBackground": "#F7C78B",
+  "ui.textSelectAttentionForeground": "#35210F"
+}

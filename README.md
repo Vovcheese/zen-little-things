@@ -1,12 +1,12 @@
 <div align="center">
 
-# Zen Mods
+# Zen Little Things
 
 **Small details. Clearer browsing.**
 
 Three independent CSS mods for tab previews, page search, and sidebar folders in Zen Browser.
 
-[Explore the mods](#the-collection) · [Install](docs/INSTALLATION.md) · [Contribute](CONTRIBUTING.md) · [MIT license](LICENSE)
+[Download](https://github.com/Vovcheese/zen-little-things/archive/refs/heads/main.zip) · [Explore the mods](#the-collection) · [Install](docs/INSTALLATION.md) · [Contribute](CONTRIBUTING.md) · [MIT license](LICENSE)
 
 ![Illustrated overview of Zen Peek, Zen Find, and Zen Folders](docs/assets/overview.svg)
 

@@ -1,0 +1,12 @@
+{
+  "id": "a498ba64-42dc-47b5-9b31-f23897f901ad",
+  "name": "Zen Find",
+  "description": "A floating page-search panel with optional native match colors.",
+  "author": "v0vcheese",
+  "version": "0.1.1",
+  "tags": [
+    "findbar"
+  ],
+  "createdAt": "2026-10-16",
+  "updatedAt": "2026-10-16"
+}

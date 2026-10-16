@@ -1,0 +1,109 @@
+/* Zen Peek 0.1.0 — native tab hover previews.
+ * Install as a local Zen Mod or through userChrome.css; see README.md.
+ * Keep selectors inside #tab-preview-panel so other popups are untouched.
+ */
+
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  #tab-preview-panel {
+    /* Override these properties in userChrome.css after the @import. */
+    --zen-peek-width: 320px;
+    --zen-peek-radius: 16px;
+    --zen-peek-duration: 180ms;
+
+    --panel-width: min(var(--zen-peek-width), calc(100vw - 32px)) !important;
+    --panel-padding: 0 !important;
+    --panel-border-radius: var(--zen-peek-radius) !important;
+    /* Native theme values have system-color fallbacks for older releases. */
+    --panel-background: var(--arrowpanel-background, Canvas) !important;
+    --panel-color: var(--arrowpanel-color, CanvasText) !important;
+    --panel-border-color: var(--arrowpanel-border-color, GrayText) !important;
+    font-family: system-ui, sans-serif !important;
+  }
+
+  #tab-preview-panel::part(content) {
+    overflow: hidden !important;
+    border-radius: var(--zen-peek-radius) !important;
+  }
+
+  /* Newer builds wrap the text and thumbnail. Older ones use direct children. */
+  #tab-preview-panel .tab-preview-content-main {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  #tab-preview-panel .tab-preview-text-container {
+    order: 1 !important;
+    margin: 0 !important;
+    padding: 14px 16px 12px !important;
+    min-width: 0 !important;
+  }
+
+  #tab-preview-panel .tab-preview-title {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    color: var(--panel-color) !important;
+  }
+
+  #tab-preview-panel .tab-preview-uri {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    color: var(--panel-color) !important;
+    opacity: 0.76;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #tab-preview-panel .tab-preview-thumbnail-container {
+    order: 2 !important;
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    margin: 0 10px 10px !important;
+    overflow: hidden !important;
+    border-radius: calc(var(--zen-peek-radius) - 6px) !important;
+    /* Keep native display/hidden logic: no empty frame for unavailable previews. */
+  }
+
+  #tab-preview-panel .tab-preview-thumbnail-container > canvas {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    border-radius: calc(var(--zen-peek-radius) - 6px) !important;
+    /* Preserve the screenshot's native aspect ratio and border. */
+    animation: zen-peek-thumbnail-in var(--zen-peek-duration) ease-out !important;
+  }
+
+  #tab-preview-panel[panelopen="true"]::part(content) {
+    animation: zen-peek-card-in var(--zen-peek-duration) cubic-bezier(0.2, 0.7, 0.2, 1) !important;
+    transform-origin: center;
+  }
+
+  @keyframes zen-peek-card-in {
+    from { opacity: 0; transform: scale(0.985); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes zen-peek-thumbnail-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tab-preview-panel[panelopen="true"]::part(content),
+    #tab-preview-panel .tab-preview-thumbnail-container > canvas {
+      animation: none !important;
+    }
+  }
+
+  @media (prefers-contrast: more), (forced-colors: active) {
+    #tab-preview-panel .tab-preview-uri { opacity: 1; }
+  }
+}

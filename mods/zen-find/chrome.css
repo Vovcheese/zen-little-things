@@ -1,0 +1,195 @@
+/* Zen Find 0.1.1 — native findbar, floating at the top of each page pane.
+ * Page match colors are native preferences; see README.md.
+ */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  #tabbrowser-tabpanels .browserContainer {
+    position: relative;
+  }
+
+  #tabbrowser-tabpanels findbar {
+    --zen-find-width: 480px;
+    --zen-find-radius: 16px;
+    --zen-find-accent: var(--ctp-accent, var(--zen-primary-color, #9874c4));
+    --zen-find-bg: var(--arrowpanel-background, Canvas);
+    --zen-find-fg: var(--arrowpanel-color, CanvasText);
+    --zen-find-border: var(--arrowpanel-border-color, GrayText);
+    position: absolute !important;
+    /* Modern Gecko assigns findbar to a bottom grid row. An absolute grid
+       child still uses that area's bounds; use the web-content area instead.
+       This declaration has no layout effect in older flex-based containers. */
+    grid-area: browserstack !important;
+    inset-block-start: 12px !important;
+    inset-inline-end: 12px !important;
+    inset-block-end: auto !important;
+    inset-inline-start: auto !important;
+    z-index: 10 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    align-items: start;
+    gap: 6px;
+    width: var(--zen-find-width) !important;
+    max-width: calc(100% - 24px) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--zen-find-border) !important;
+    border-radius: var(--zen-find-radius) !important;
+    background: var(--zen-find-bg) !important;
+    color: var(--zen-find-fg) !important;
+    box-shadow: 0 12px 36px -14px rgb(0 0 0 / 0.35), 0 3px 10px rgb(0 0 0 / 0.10) !important;
+    font: 12px/1.4 system-ui, sans-serif !important;
+    transition: none !important;
+  }
+
+  /* The native bar animates a bottom margin. Override its hidden state so a
+     floating closed bar cannot intercept clicks or remain keyboard-focusable. */
+  #tabbrowser-tabpanels findbar[hidden] {
+    display: none !important;
+    visibility: collapse !important;
+  }
+
+  #tabbrowser-tabpanels findbar:not([hidden]):not([noanim]) {
+    animation: zen-find-enter 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-container {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px 4px !important;
+    height: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #tabbrowser-tabpanels findbar [anonid="findbar-textbox-wrapper"] {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    gap: 4px;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-textbox {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    border: 1px solid var(--zen-find-border) !important;
+    border-radius: 10px !important;
+    background: var(--toolbar-field-background-color, var(--zen-find-bg)) !important;
+    color: var(--zen-find-fg) !important;
+    font: 13px/1.4 system-ui, sans-serif !important;
+    box-shadow: none !important;
+    transition: border-color 150ms ease, background-color 150ms ease !important;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-textbox:focus {
+    border-color: var(--zen-find-accent) !important;
+    outline: 2px solid var(--zen-find-accent) !important;
+    outline-offset: 1px !important;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-textbox[status="notfound"] {
+    background: #fbe3e5 !important;
+    color: #7a2435 !important;
+    border-color: #b74761 !important;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-find-previous,
+  #tabbrowser-tabpanels findbar .findbar-find-next,
+  #tabbrowser-tabpanels findbar .findbar-closebutton {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    padding: 6px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    color: var(--zen-find-fg) !important;
+    fill: currentColor !important;
+    transition: background-color 150ms ease !important;
+  }
+
+  /* macOS puts Close before the container in the DOM; grid placement keeps it right. */
+  #tabbrowser-tabpanels findbar .findbar-closebutton {
+    grid-column: 2;
+    grid-row: 1;
+    margin-block-start: 3px !important;
+  }
+
+  #tabbrowser-tabpanels findbar toolbarbutton:not([disabled="true"]):hover {
+    background: var(--toolbarbutton-hover-background, var(--toolbarbutton-background-color-hover, rgba(128, 128, 128, 0.18))) !important;
+  }
+
+  #tabbrowser-tabpanels findbar toolbarbutton:focus-visible,
+  #tabbrowser-tabpanels findbar checkbox:focus-visible {
+    outline: 2px solid var(--zen-find-accent) !important;
+    outline-offset: 1px !important;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-container > checkbox {
+    order: 2;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    border: 1px solid transparent !important;
+    border-radius: 7px !important;
+    accent-color: var(--zen-find-accent);
+    font-size: 11px !important;
+  }
+
+  #tabbrowser-tabpanels findbar checkbox[checked="true"] {
+    border-color: var(--zen-find-accent) !important;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-label {
+    order: 1;
+    margin: 0 4px !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+  }
+
+  #tabbrowser-tabpanels findbar .found-matches:not([hidden]) {
+    padding: 3px 7px !important;
+    border-radius: 6px !important;
+    background: var(--toolbarbutton-background-color-hover, rgba(128, 128, 128, 0.15));
+    font-variant-numeric: tabular-nums;
+  }
+
+  #tabbrowser-tabpanels findbar .findbar-find-status[status="notfound"] {
+    font-weight: 600 !important;
+  }
+
+  @keyframes zen-find-enter {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tabbrowser-tabpanels findbar:not([hidden]):not([noanim]) { animation: none !important; }
+    #tabbrowser-tabpanels findbar .findbar-textbox,
+    #tabbrowser-tabpanels findbar toolbarbutton { transition: none !important; }
+  }
+
+  @media (forced-colors: active) {
+    #tabbrowser-tabpanels findbar {
+      --zen-find-bg: Canvas;
+      --zen-find-fg: CanvasText;
+      --zen-find-border: CanvasText;
+      --zen-find-accent: Highlight;
+      box-shadow: none !important;
+    }
+    #tabbrowser-tabpanels findbar .findbar-textbox[status="notfound"] {
+      background: Canvas !important;
+      color: CanvasText !important;
+      border-color: CanvasText !important;
+    }
+  }
+}
