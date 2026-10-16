@@ -2,6 +2,26 @@
 
 Versions belong to individual mods. These entries describe local development packages; no marketplace release is implied.
 
+## 2026-10-16 · Simpler installation
+
+- One `install.command` menu replaces the separate install, update, and restore launchers. Use the same menu for first installation and updates.
+- Find now preserves search preferences by default. Apply its optional palette with menu option 5 or `--with-highlights`; `--no-highlights` remains compatible.
+- The local installer creates the profile's `chrome` folder when needed.
+- Shortened the README, consolidated installation help, and moved maintainer publishing notes out of the user guide.
+
+## 2026-10-16 · Peek 0.2.1
+
+- Composite the preview background over an opaque system surface, including themes with translucent colors.
+- Remove the whole-card fade; retain the thumbnail animation over a solid background.
+- Verified the installed patch in native Zen on macOS: the light-theme text-only preview has an opaque background and a single frame. Thumbnail and dark-theme native checks remain pending.
+
+## 2026-10-16 · Find and Peek 0.2.0
+
+- **Find:** equal-height input and navigation controls, responsive filter columns, a separate match footer, and a single inset focus ring.
+- **Peek:** one outer frame, a borderless thumbnail clipped once, current panel color variables, and a fade without inner-frame scaling.
+- Added a native demo page and a generated HTML layout fixture; fixture checks do not replace native Zen validation.
+- Added `update-ui.command` to update both CSS packages without changing search preferences.
+
 ## 2026-10-16 · Public preview preparation
 
 - Added English collection documentation, installation and contribution guides, publishing notes, and screenshot guidelines.

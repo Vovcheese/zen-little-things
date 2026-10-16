@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,8 +39,10 @@ def without_legacy_import(data):
 
 def prepare(profile, package=PACKAGE):
     chrome = profile / 'chrome'
-    if not chrome.is_dir():
-        raise ValueError(f'Chrome folder not found: {chrome}')
+    if not profile.is_dir():
+        raise ValueError(f'Profile folder not found: {profile}. Open Zen once before installing.')
+    if chrome.exists() and not chrome.is_dir():
+        raise ValueError(f'Expected a folder: {chrome}')
     registry = profile / 'zen-themes.json'
     mods = json.loads(registry.read_text()) if registry.exists() else {}
     if not isinstance(mods, dict):
@@ -134,10 +137,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dry-run', action='store_true', help='Show planned changes without writing')
     parser.add_argument('--mod', choices=['zen-peek', 'zen-find', 'zen-folders'], default='zen-peek')
-    parser.add_argument('--no-highlights', action='store_true', help='Keep existing search highlight preferences')
-    parser.add_argument('--restore-highlights', action='store_true', help='Restore search preferences saved before installing the Zen Find palette')
+    palette = parser.add_mutually_exclusive_group()
+    palette.add_argument('--with-highlights', action='store_true', help='Also apply the optional Zen Find match colors and enable Highlight All')
+    palette.add_argument('--no-highlights', action='store_true', help='Keep existing search preferences (the default; retained for older commands)')
+    palette.add_argument('--restore-highlights', action='store_true', help='Restore search preferences saved before installing the Zen Find palette')
     args = parser.parse_args()
     try:
+        if sys.platform != 'darwin':
+            raise ValueError('The local installer supports macOS. See docs/INSTALLATION.md for manual CSS installation.')
+        if (args.restore_highlights or args.with_highlights) and args.mod != 'zen-find':
+            raise ValueError('Highlight options require --mod zen-find.')
         if not args.dry_run:
             check = subprocess.run(['pgrep', '-ix', 'zen'], capture_output=True)
             if check.returncode == 0:
@@ -147,10 +156,8 @@ def main():
         profile = default_profile().resolve()
         package = ROOT / 'mods' / args.mod
         metadata = json.loads((package / 'mod.json').read_text())
-        if args.restore_highlights and args.mod != 'zen-find':
-            raise ValueError('--restore-highlights requires --mod zen-find.')
         writes = {} if args.restore_highlights else prepare(profile, package)
-        if args.mod == 'zen-find' and (args.restore_highlights or not args.no_highlights):
+        if args.mod == 'zen-find' and (args.restore_highlights or args.with_highlights):
             from find_palette import prepare_palette
             writes.update(prepare_palette(profile, package, restore=args.restore_highlights))
         print('Profile:', profile)
@@ -169,8 +176,8 @@ def main():
             print(f'Open Zen → Settings → Zen Mods. Look for {metadata["name"]} (v{metadata["version"]}).')
             if args.mod == 'zen-peek':
                 print('Any legacy standalone import was removed; use the Zen Mods toggle to manage this mod.')
-            elif args.mod == 'zen-find' and not args.no_highlights:
-                print('Search palette applied. To restore: restore-zen-find-highlights.command.')
+            elif args.mod == 'zen-find' and args.with_highlights:
+                print('Search palette applied. To restore: python3 scripts/install_local_mod.py --mod zen-find --restore-highlights')
     except (OSError, ValueError, configparser.Error) as error:
         raise SystemExit(f'Error: {error}') from error
 

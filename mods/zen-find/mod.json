@@ -3,7 +3,7 @@
   "name": "Zen Find",
   "description": "A floating page-search panel with optional native match colors.",
   "author": "v0vcheese",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "tags": [
     "findbar"
   ],

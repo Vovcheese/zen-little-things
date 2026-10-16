@@ -31,3 +31,4 @@ zen-find-highlight-state.json
 
 # Generated fixture includes assets extracted from a local Zen installation
 /tests/folders-preview.html
+/tests/ui-preview.html

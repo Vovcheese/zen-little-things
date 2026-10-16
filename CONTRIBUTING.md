@@ -15,7 +15,7 @@ Each package lives in `mods/<name>/`:
 - `README.md`: behavior, installation, customization, and validation status.
 - Optional preference files must document every changed preference and its restore path.
 
-Keep an existing mod's ID stable when updating it. For a new package, generate a new UUID and add it to the installer's `--mod` choices. New packages also need a launcher, documentation, and a catalog entry.
+Keep an existing mod's ID stable when updating it. For a new package, generate a new UUID and add it to the installer's `--mod` choices. New packages also need an entry in `scripts/install_menu.py`, documentation, and a README catalog entry.
 
 ## Design and compatibility guidelines
 
@@ -39,7 +39,17 @@ Record **pass**, **fail**, or **not tested** with the exact Zen build and OS. Re
 | Find | Open/close, matches/no matches, long query, Enter/Shift+Enter/Escape, native filters, small window, Split View, fullscreen. |
 | Folders | Open/closed/hover/selected states, adjacent open folders, three nesting levels, narrow/wide sidebar, custom icon, drag-and-drop. |
 
-The folder fixture helps catch geometry issues. It does not test the XUL browser shell, real drag-and-drop, or integration with other Zen components. Follow the [screenshot guide](docs/SCREENSHOTS.md) for review images.
+The folder fixture helps catch geometry issues. It does not test the XUL browser shell, real drag-and-drop, or integration with other Zen components. Capture demo content only: no personal tabs, account menus, profile paths, or notifications. Store reviewed public images in `docs/assets/`. Caption each with the mod version, Zen build, OS, theme, and date; label fixtures and illustrations explicitly. Do not publish the local development captures.
+
+## Repository checks
+
+```sh
+python3 scripts/check_repository.py
+python3 -m unittest discover -s tests -p 'test_*.py'
+zsh -n install.command
+```
+
+See [release instructions](.github/RELEASING.md) for publishing.
 
 ## Installer changes
 

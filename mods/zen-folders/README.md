@@ -36,7 +36,7 @@ Build the optional fixture on a Mac with Zen installed at `/Applications/Zen.app
 python3 tests/build_folders_preview.py
 ```
 
-Open `tests/folders-preview.html`. Generated files include upstream native styles/icons and are excluded from Git; see [third-party notes](../../THIRD_PARTY.md).
+Open `tests/folders-preview.html`. Generated files include upstream native styles/icons and are excluded from Git; see [third-party notes](../../docs/THIRD_PARTY.md).
 
 ## Customize
 

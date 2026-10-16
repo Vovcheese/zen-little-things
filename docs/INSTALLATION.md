@@ -1,84 +1,82 @@
-# Installation
+# Installation & help
 
-[← Back to the collection](../README.md)
+[← Zen Little Things](../README.md)
 
-## Choose one method
+## Recommended: macOS installer
 
-| Method | Zen Mods toggle | Platform |
-| --- | --- | --- |
-| Local installer | Yes | macOS; uses the default profile from `profiles.ini` |
-| Manual `userChrome.css` | No | Platform-independent procedure; Windows/Linux not validated |
+You need Zen Browser, Python 3.9 or later, and an extracted copy of this repository. Open Zen at least once so it has a profile, then quit it with **⌘Q**.
 
-Do not install the same CSS through both methods. A duplicate `@import` keeps the styling active even after its Zen Mods toggle is off.
-
-## Local installer on macOS
-
-You need Python **3.9 or later**, a downloaded copy of this repository, and an existing Zen profile. Run `python3 --version` to check Python. There are no pip dependencies.
-
-1. Open Zen → `about:support` → **Profile Folder**. Create a folder named `chrome` inside that profile if it does not exist.
-2. For **Zen Peek**, open `about:config` and set both `browser.tabs.hoverPreview.enabled` and `browser.tabs.hoverPreview.showThumbnails` to `true`.
-3. Quit Zen using **⌘Q**. Closing a window is not enough.
-4. Open Terminal in the extracted repository directory and run the command for your mod:
-
-   | Mod | Command | Finder shortcut |
-   | --- | --- | --- |
-   | Peek | `python3 scripts/install_local_mod.py --mod zen-peek` | `install-zen-peek.command` |
-   | Find + highlights | `python3 scripts/install_local_mod.py --mod zen-find` | `install-zen-find.command` |
-   | Find panel only | `python3 scripts/install_local_mod.py --mod zen-find --no-highlights` | `update-zen-find.command` |
-   | Folders | `python3 scripts/install_local_mod.py --mod zen-folders` | `install-zen-folders.command` |
-
-5. Reopen Zen → **Settings → Zen Mods** and check the mod name and version.
-
-Preview the planned file changes without writing or quitting Zen:
+Open **`install.command`** in the repository folder. If Finder cannot open it, open Terminal in that folder and run:
 
 ```sh
-python3 scripts/install_local_mod.py --mod zen-folders --dry-run
-python3 scripts/install_local_mod.py --mod zen-find --no-highlights --dry-run
+zsh install.command
 ```
 
-The installer looks for a single default profile under `~/Library/Application Support/zen`. It stops if profile selection is ambiguous. It does not support selecting an arbitrary profile from the command line.
+| Choose | Action |
+| --- | --- |
+| **1** | Install or update all three mods |
+| **2** | Install or update Peek |
+| **3** | Install or update Find |
+| **4** | Install or update Folders |
+| **5** | Install Find and apply optional match colors |
+| **6** | Restore the previous search colors and Highlight All setting |
+| **0** | Exit |
 
-### What gets changed
+Options 1–4 change the styling only. Installation and updates use the same menu. Reopen Zen and find each installed mod in **Settings → Zen Mods**.
 
-- A local entry in `zen-themes.json` and files in `chrome/zen-themes/<mod-id>/`.
-- `chrome/zen-themes.css`, rebuilt using all enabled registered mods.
-- With Peek, a legacy standalone `@import url("zen-peek.css");` is removed from `userChrome.css` to avoid duplicate loading. Other CSS is preserved.
-- With Find's standard install, five preferences and a record of their original values. See below.
+### Enable tab previews
 
-Existing files that will change are backed up under `<profile>/zen-mods-backups/<timestamp>/`. A failed write triggers rollback of files already changed. The installer does not close Zen for you.
+For Peek, set these preferences to `true` in `about:config`:
 
-This uses Zen's internal local registry format, inspected in 1.23.2b. A future Zen update may change that format. Store update checks may report that these local IDs are not in the marketplace. Exporting the mod list does not transfer the local CSS files to another computer.
-
-## Update or remove
-
-To update, download the new project, quit Zen, and run the same installer again. The existing enabled/disabled state is retained. There is no automatic update service.
-
-To disable or remove locally registered CSS, use the corresponding controls in **Settings → Zen Mods**, then restart if necessary. To remove a manual installation, delete its import and copied CSS file, then restart. Remove any custom variable overrides you added if you no longer need them.
-
-Backups remain in the profile. Restoring a backup manually should be done with Zen closed and only for the files you intend to revert; an old full registry can also revert later changes to other mods.
-
-## Restore search highlights
-
-Find's default install sets `findbar.highlightAll` and four native match color preferences, listed in [`highlight-prefs.json`](../mods/zen-find/highlight-prefs.json). These are profile settings, separate from the CSS toggle.
-
-With Zen closed, restore their saved values:
-
-```sh
-python3 scripts/install_local_mod.py --mod zen-find --restore-highlights
+```text
+browser.tabs.hoverPreview.enabled
+browser.tabs.hoverPreview.showThumbnails
 ```
 
-Or double-click `restore-zen-find-highlights.command`. This restores the values captured before the palette was first applied; it does not remove the Find CSS. Installing Find normally again reapplies the palette.
+Hover another loaded tab. Zen controls whether a thumbnail is available; selected or unloaded tabs may show text only.
 
-If one of these preferences is set in `user.js`, the palette operation stops before writing. Use `--no-highlights` to install only the panel. Ordinary mouse-selection colors are not changed by this package.
+### Optional search colors
+
+Menu option **5** enables Highlight All and applies lavender to all matches and peach to the current match. It changes [five native preferences](../mods/zen-find/highlight-prefs.json) and saves their previous values.
+
+Turning off the Find mod does not undo these preferences. To restore them, quit Zen and choose **6**. This leaves the Find panel installed. If `user.js` manages any of those preferences, the color operation stops; choose **3** for styling only.
+
+### Update, disable, or remove
+
+Download and extract the latest ZIP, quit Zen, and run the installer again. Your enabled/disabled mod switches are retained; search settings change only when you choose option 5 or 6. Local mods do not update automatically.
+
+Use **Settings → Zen Mods** to disable or remove a mod. Restart Zen if needed. Remove any custom CSS overrides you added separately.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| Python is missing | Install Python 3.9+ and check `python3 --version` in Terminal. |
+| Installer says Zen is running | Use **⌘Q**; closing the window does not quit the app. |
+| Cannot determine a default profile | Use the manual route below for your chosen profile. The installer only handles one unambiguous default macOS profile. |
+| Mod is missing from Settings | Check the installer output and the active profile in `about:support`. Manual CSS does not create a Settings entry. |
+| Styling did not change | Restart Zen, enable the mod, and check for another mod styling the same area. |
+| No preview thumbnail | Enable both preferences above and hover a loaded, inactive tab. |
+| Search is missing | Press ⌘F on an ordinary text page. Check that Zen Find 0.2.0 or newer is enabled. |
+| Search colors remain after disabling Find | Quit Zen and choose **6** in the installer. |
+
+Still stuck? [Open an issue](https://github.com/Vovcheese/zen-little-things/issues/new/choose) with your mod version, Zen version, OS, and the error or a screenshot using demo content.
 
 ## Manual CSS installation
 
-This method does not add a Zen Mods entry and does not apply Find's optional preference palette.
+For a non-default profile, or Windows/Linux, use this route. **Windows/Linux have not been validated.** This method does not add a Zen Mods entry or change search preferences. Do not combine it with a local registry install of the same mod.
 
-1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`. For Peek, also enable the two hover-preview preferences above. Browser debugging preferences are not needed for installation.
-2. Open the profile folder from `about:support` and create `chrome` if needed.
-3. Copy your chosen `mods/<name>/chrome.css` into it with a unique filename: `zen-peek.css`, `zen-find.css`, or `zen-folders.css`.
-4. Add only the corresponding imports to `chrome/userChrome.css`. Create the file if needed; preserve existing styles. Imports belong before normal rules and before `@namespace`, after `@charset` if present.
+1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`. For Peek, also enable the two preview preferences above.
+2. Open `about:support` → **Profile Folder** and create a `chrome` folder if needed.
+3. Copy the desired mod's `chrome.css` into that folder with a unique name:
+
+   | Source | Name in your `chrome` folder |
+   | --- | --- |
+   | `mods/zen-peek/chrome.css` | `zen-peek.css` |
+   | `mods/zen-find/chrome.css` | `zen-find.css` |
+   | `mods/zen-folders/chrome.css` | `zen-folders.css` |
+
+4. Create or edit `chrome/userChrome.css`. Add only the imports for the mods you copied, before existing rules and `@namespace` (after `@charset`, if present):
 
    ```css
    @import url("zen-peek.css");
@@ -86,20 +84,39 @@ This method does not add a Zen Mods entry and does not apply Find's optional pre
    @import url("zen-folders.css");
    ```
 
-5. Restart Zen completely.
+5. Restart Zen completely. To update, replace the copied CSS; to remove, delete its import and copied file.
 
-Zen documents the [profile folder and custom stylesheet workflow](https://docs.zen-browser.app/guides/live-editing). Its live-editing developer-tool setup is optional and is not required for these installation steps.
+Browser debugging preferences are not required.
 
-## Troubleshooting
+## Command-line options
 
-| Symptom | Check |
-| --- | --- |
-| Mod missing from Settings | Manual CSS never creates an entry. For a local install, check the installer output and that Zen uses the selected default profile. |
-| Nothing changed | Quit and reopen Zen. Check that the mod is enabled, the correct profile was used, and another mod does not override the same controls. |
-| No preview image | Peek needs native hover previews and thumbnails enabled. A selected, unloaded, or uncaptured tab may have no image. |
-| Find panel missing | Check that Find is at least 0.1.1. Open a normal text page and use ⌘F / Ctrl+F. Report the Zen build if the panel still does not appear. |
-| Search colors remain after disabling Find | Restore the profile preferences using the command above. |
-| Cannot determine profile | The installer requires exactly one default profile in the macOS Zen configuration. Use the manual CSS route for another profile. |
-| Python or Finder launcher fails | Run the Python command in Terminal to see the error. Finder wrappers write a local `.log` file; remove personal paths before sharing it. |
+Run these from the repository directory with Zen closed:
 
-When reporting a rendering problem, include which other mods style the same area and whether it reproduces with those mods disabled.
+```sh
+python3 scripts/install_local_mod.py --mod zen-peek
+python3 scripts/install_local_mod.py --mod zen-find
+python3 scripts/install_local_mod.py --mod zen-folders
+```
+
+Each line installs or updates one mod without changing search preferences. Find's colors are explicitly opt-in:
+
+```sh
+python3 scripts/install_local_mod.py --mod zen-find --with-highlights
+python3 scripts/install_local_mod.py --mod zen-find --restore-highlights
+```
+
+To inspect planned changes without writing or quitting Zen, add `--dry-run`. The older `--no-highlights` option is still accepted and now matches the default.
+
+## Files and backups
+
+The installer reads the default profile from `~/Library/Application Support/zen/profiles.ini`. It creates `chrome` when needed and writes:
+
+- Mod CSS and a README under `chrome/zen-themes/<mod-id>/`.
+- A local entry in `zen-themes.json` and the combined `chrome/zen-themes.css` cache.
+- Search preferences and their saved values only for the optional color operation.
+
+Peek also removes its old standalone `zen-peek.css` import, if present, to prevent duplicate loading. Other styles are preserved.
+
+Existing changed files are backed up to `<profile>/zen-mods-backups/<timestamp>/`. Each mod installation rolls back its own writes on failure. When installing all three, earlier successful mods remain installed if a later one fails; the menu reports them.
+
+The local registry format was inspected in Zen 1.23.2b and can change in future versions. Store update checks may not recognize these local IDs. Exporting a mod list does not transfer its CSS files.

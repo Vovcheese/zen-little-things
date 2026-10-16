@@ -1,34 +1,62 @@
-/* Zen Peek 0.1.0 — native tab hover previews.
- * Install as a local Zen Mod or through userChrome.css; see README.md.
- * Keep selectors inside #tab-preview-panel so other popups are untouched.
+/* Zen Peek 0.2.1 — opaque card, one clean frame, borderless thumbnail.
+ * Native visibility, popup placement, notes, and capture remain browser-owned.
  */
-
 @-moz-document url("chrome://browser/content/browser.xhtml") {
   #tab-preview-panel {
-    /* Override these properties in userChrome.css after the @import. */
     --zen-peek-width: 320px;
     --zen-peek-radius: 16px;
-    --zen-peek-duration: 180ms;
-
+    --zen-peek-duration: 160ms;
+    --zen-peek-background: var(--ctp-base, var(--arrowpanel-background, Canvas));
     --panel-width: min(var(--zen-peek-width), calc(100vw - 32px)) !important;
     --panel-padding: 0 !important;
     --panel-border-radius: var(--zen-peek-radius) !important;
-    /* Native theme values have system-color fallbacks for older releases. */
-    --panel-background: var(--arrowpanel-background, Canvas) !important;
-    --panel-color: var(--arrowpanel-color, CanvasText) !important;
-    --panel-border-color: var(--arrowpanel-border-color, GrayText) !important;
+    /* Current popup.css uses *-color; retain old names for older panel skins. */
+    --panel-background-color: var(--zen-peek-background) !important;
+    --panel-text-color: var(--arrowpanel-color, CanvasText) !important;
+    --panel-background: var(--panel-background-color) !important;
+    --panel-color: var(--panel-text-color) !important;
+    --panel-border-color: rgba(128, 128, 128, 0.28) !important;
+    appearance: none !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
     font-family: system-ui, sans-serif !important;
   }
 
-  #tab-preview-panel::part(content) {
-    overflow: hidden !important;
-    border-radius: var(--zen-peek-radius) !important;
+  @supports (color: color-mix(in srgb, black, white)) {
+    #tab-preview-panel {
+      --panel-border-color: color-mix(in srgb, var(--panel-text-color) 18%, transparent) !important;
+    }
   }
 
-  /* Newer builds wrap the text and thumbnail. Older ones use direct children. */
+  /* Only this surface draws the card's frame. Keep native popup shadow margins. */
+  #tab-preview-panel::part(content) {
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    border: 1px solid var(--panel-border-color) !important;
+    border-radius: var(--zen-peek-radius) !important;
+    outline: none !important;
+    /* Composite theme colors over an opaque base, including translucent themes. */
+    background: linear-gradient(var(--zen-peek-background), var(--zen-peek-background)), Canvas !important;
+    color: var(--panel-text-color) !important;
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
   #tab-preview-panel .tab-preview-content-main {
     padding: 0 !important;
     gap: 0 !important;
+    min-width: 0 !important;
+    border: 0 !important;
+    /* Also paint the light-DOM surface for older panel implementations. */
+    background: linear-gradient(var(--zen-peek-background), var(--zen-peek-background)), Canvas !important;
+    box-shadow: none !important;
+  }
+
+  #tab-preview-panel .tab-preview-content-interactive:not(:empty) {
+    padding: 10px 12px 0 !important;
   }
 
   #tab-preview-panel .tab-preview-text-container {
@@ -42,21 +70,22 @@
     display: -webkit-box !important;
     -webkit-box-orient: vertical !important;
     -webkit-line-clamp: 3 !important;
+    margin: 0 !important;
     overflow: hidden !important;
     overflow-wrap: anywhere !important;
     white-space: normal !important;
     font-size: 14px !important;
     font-weight: 600 !important;
     line-height: 1.4 !important;
-    color: var(--panel-color) !important;
+    color: var(--panel-text-color) !important;
   }
 
   #tab-preview-panel .tab-preview-uri {
-    margin-top: 5px !important;
+    margin: 5px 0 0 !important;
     font-size: 12px !important;
     line-height: 1.5 !important;
-    color: var(--panel-color) !important;
-    opacity: 0.76;
+    color: var(--panel-text-color) !important;
+    opacity: 0.8;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -64,46 +93,45 @@
 
   #tab-preview-panel .tab-preview-thumbnail-container {
     order: 2 !important;
-    width: calc(100% - 20px) !important;
+    width: calc(100% - 24px) !important;
     max-width: none !important;
-    margin: 0 10px 10px !important;
+    margin: 0 12px 12px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
     overflow: hidden !important;
-    border-radius: calc(var(--zen-peek-radius) - 6px) !important;
-    /* Keep native display/hidden logic: no empty frame for unavailable previews. */
+    border: 0 !important;
+    border-radius: max(0px, calc(var(--zen-peek-radius) - 6px)) !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    /* Do not set display: Zen must still hide unavailable thumbnails. */
   }
 
   #tab-preview-panel .tab-preview-thumbnail-container > canvas {
     display: block !important;
     width: 100% !important;
     height: auto !important;
-    border-radius: calc(var(--zen-peek-radius) - 6px) !important;
-    /* Preserve the screenshot's native aspect ratio and border. */
-    animation: zen-peek-thumbnail-in var(--zen-peek-duration) ease-out !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    /* The wrapper clips once. A second rounded canvas edge creates a seam. */
+    animation: zen-peek-in var(--zen-peek-duration) ease-out !important;
   }
 
-  #tab-preview-panel[panelopen="true"]::part(content) {
-    animation: zen-peek-card-in var(--zen-peek-duration) cubic-bezier(0.2, 0.7, 0.2, 1) !important;
-    transform-origin: center;
-  }
-
-  @keyframes zen-peek-card-in {
-    from { opacity: 0; transform: scale(0.985); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes zen-peek-thumbnail-in {
+  @keyframes zen-peek-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #tab-preview-panel[panelopen="true"]::part(content),
-    #tab-preview-panel .tab-preview-thumbnail-container > canvas {
-      animation: none !important;
-    }
+    #tab-preview-panel .tab-preview-thumbnail-container > canvas { animation: none !important; }
   }
 
   @media (prefers-contrast: more), (forced-colors: active) {
+    #tab-preview-panel { --panel-border-color: CanvasText !important; }
     #tab-preview-panel .tab-preview-uri { opacity: 1; }
   }
 }
